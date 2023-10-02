@@ -95,38 +95,76 @@ app.get('/food/:id', async (req, res)=> {
 
 });
 
-/**
- * @swagger
- * /food/{id}:
- *   get:
- *     description: Get food item by ID
- *     parameters:
- *       - name: id
- *         description: Food item's ID
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: Successfully retrieved food item
- *         schema:
- *           type: object
- *           properties:
- *             ITEM_ID:
- *               type: number
- *             NAME:
- *               type: string
- *             DESCRIPTION:
- *               type: string
- *             PRICE:
- *               type: number
- *             CATEGORY:
- *               type: string
- *       404:
- *         description: Food item not found
- *       500:
- *         description: Internal Server Error
- */
+// app.get('/order/:orderNum', async (req, res)=> {
+// Swagger Documentation:
+// /**
+//  * @swagger
+//  * /order/{orderNum}:
+//  *   get:
+//  *     summary: Get order details by order number
+//  *     parameters:
+//  *       - name: orderNum
+//  *         in: path
+//  *         description: Order number
+//  *         required: true
+//  *         type: string
+//  *     responses:
+//  *       '200':
+//  *         description: Successful response with order details
+//  *         schema:
+//  *           type: array
+//  *           items:
+//  *             type: object
+//  *             properties:
+//  *               ORD_NUM: 
+//  *                 type: string
+//  *                 description: Order number
+//  *               ORD_AMOUNT: 
+//  *                 type: number
+//  *                 description: Order amount
+//  *               ADVANCE_AMOUNT: 
+//  *                 type: number
+//  *                 description: Advance amount
+//  *               ORD_DATE: 
+//  *                 type: string
+//  *                 format: date
+//  *                 description: Order date
+//  *               CUST_CODE: 
+//  *                 type: string
+//  *                 description: Customer code
+//  *               AGENT_CODE: 
+//  *                 type: string
+//  *                 description: Agent code
+//  *               ORD_DESCRIPTION: 
+//  *                 type: string
+//  *                 description: Order description
+//  *       '404':
+//  *         description: Order not found
+//  *       '500':
+//  *         description: Internal Server Error
+//  */
+async function getOrderDetails(req, res) {
+  console.log("You passed in " + req.params.orderNum);
+
+  // Connect to the database
+  try {
+    let conn = await pool.getConnection();
+    let query = 'SELECT * FROM daysorder WHERE ORD_NUM = ' + req.params.orderNum;
+    console.log(query);
+    const rows = await conn.query(query);
+    console.log(rows);
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    return res.json(rows);
+  } catch (err) {
+    throw err;
+  } finally {
+    if (conn) return conn.end();
+  }
+}
+
+// Register the route with Express
+app.get('/order/:orderNum', getOrderDetails);
+
 app.get('/order/:orderNum', async (req, res)=> {
   
   console.log("you passed in " + req.params.orderNum);
